@@ -2,8 +2,8 @@ module Main where
 
 import System.Console.CmdArgs
 
-import Data.Mathematica.Type
-import Data.Mathematica.Command
+import Application.Mathematica.Parse.ProgType
+import Application.Mathematica.Parse.Command
 
 main :: IO () 
 main = do 
