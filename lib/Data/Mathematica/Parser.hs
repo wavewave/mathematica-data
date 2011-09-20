@@ -2,6 +2,7 @@ module Data.Mathematica.Parser where
 
 import Data.Mathematica 
 
+import Prelude hiding (takeWhile)
 import Control.Applicative hiding (many)
 
 -- import qualified Data.Attoparsec as P
@@ -13,45 +14,59 @@ import qualified Data.ByteString.Char8 as BC
 alphanumeric :: Char -> Bool
 alphanumeric = (||) <$> isAlpha_ascii <*> isDigit  
 
-item =   mstring
-     <|> listitem 
+mstring :: Parser MExpression 
+mstring = do 
+  c <- satisfy (isAlpha_ascii)
+  cs <- BC.unpack <$> takeWhile alphanumeric
+  return $ MString (c:cs) 
 
-number :: Parser String 
-number = do sign <- (try (char '+' <|> char '-')
+
+item :: Parser MExpression
+item = mstring
+       <|> mnumber
+       <|> listitem 
+
+{-
+mnumber :: Parser MExpression 
+mnumber = do n <- number 
+             case n of 
+               I x -> return (MInteger (show x))
+               D x -> return (MReal (show x))
+-}
+
+isNumSym :: Char -> Bool 
+isNumSym c = c `elem` "0123456789.Ee+-" 
+
+mnumber :: Parser MExpression 
+mnumber = do sign <- (try (char '+' <|> char '-')
                     <|> return '+' ) 
-            digits <- BC.unpack <$> takeWhile1 isDigit
-            return (sign : digits)
+             pre <- (sign : ) . BC.unpack <$> takeWhile1 isDigit
+             (try (MReal . (pre ++) 
+                   <$> ((:) <$> satisfy (inClass ".Ee+-")
+                            <*> (BC.unpack <$> takeWhile isNumSym)))
+              <|> return (MInteger pre))
+
+
 
 listitem :: Parser MExpression 
 listitem = do 
   char '{'
   syms <- 
-    (try (do sym1 <- skipBlank *> mstring <* skipBlank
+    (try (do sym1 <- skipBlank *> item <* skipBlank
              symr <- many ( char ',' *> skipBlank *> item <* skipBlank)
              return (sym1:symr))
      <|> skipBlank *> return [])
   char '}'
   return $ MExp (MSymbol "List") syms
        
-mstring :: Parser MExpression 
-mstring = do 
-  x <- BC.unpack <$> takeWhile1 alphanumeric
-  return $ MString x 
 
 skipBlank :: Parser ()
-skipBlank = many (char ' ') >> return ()
+skipBlank = takeWhile (inClass " \t") >> return ()
 
 line :: Parser [MExpression]
-line = do 
-  ws <- many1 ( skipBlank *> item  <* skipBlank  ) 
-  endOfLine 
-  return ws 
+line = many ( skipBlank *> item  <* skipBlank  ) 
+  
 
+manylines :: Parser [[MExpression]]
+manylines = many (line <* endOfLine) 
 
-{-
-oneline  = do 
-  many1 (item)  
-
-
-item = list <|> 
--}
