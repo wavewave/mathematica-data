@@ -11,6 +11,8 @@ import Data.Attoparsec.Char8
 
 import qualified Data.ByteString.Char8 as BC
 
+import Debug.Trace
+
 alphanumeric :: Char -> Bool
 alphanumeric = (||) <$> isAlpha_ascii <*> isDigit  
 
@@ -34,17 +36,33 @@ mnumber = do n <- number
                D x -> return (MReal (show x))
 -}
 
+readDouble :: String -> Double 
+readDouble str 
+  | (not.null) str = let rstr = reverse str 
+                         x = head rstr
+                     in if x == '.'  
+                          then read $ reverse ('0' : rstr)
+                          else read str 
+  | otherwise = error "Error in readDouble otherwise"
+
 isNumSym :: Char -> Bool 
 isNumSym c = c `elem` "0123456789.Ee+-" 
 
 mnumber :: Parser MExpression 
 mnumber = do sign <- (try (char '+' <|> char '-')
-                    <|> return '+' ) 
-             pre <- (sign : ) . BC.unpack <$> takeWhile1 isDigit
-             (try (MReal . (pre ++) 
-                   <$> ((:) <$> satisfy (inClass ".Ee+-")
-                            <*> (BC.unpack <$> takeWhile isNumSym)))
-              <|> return (MInteger pre))
+                      <|> return '+' ) 
+             pre <- if sign == '+' 
+                      then BC.unpack <$> takeWhile1 isDigit
+                      else ('-' : ) . BC.unpack <$> takeWhile1 isDigit
+             
+             (try ( do {
+                str <-  (pre ++) <$> ((:) <$> satisfy (inClass ".Ee+-")
+                                          <*> (BC.unpack <$> takeWhile isNumSym)) ; 
+                {- trace ('D':str) $ -}
+                return (MReal (readDouble str)) 
+                } ) <|> ({- trace ("I" ++ pre) $ -} return (MInteger (read pre))))
+             
+             
 
 
 

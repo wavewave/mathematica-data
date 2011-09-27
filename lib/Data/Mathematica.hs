@@ -13,8 +13,8 @@ data Atom = MSymbol String
 -}
 
 data MExpression = MSymbol  !String 
-                 | MInteger !String
-                 | MReal    !String
+                 | MInteger !Integer
+                 | MReal    !Double
                  | MString  !String
                  | MExp { exp_head :: MExpression
                         , exp_elements :: [MExpression] } 

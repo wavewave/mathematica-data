@@ -6,6 +6,7 @@ import Data.Mathematica.Parser
 import qualified Data.ByteString.Char8 as B
 
 import Data.Enumerator
+import qualified Data.Enumerator.List as EL
 import Data.Enumerator.Binary
 import Data.Attoparsec.Enumerator
 
@@ -28,7 +29,10 @@ main = do
   bstr <- B.readFile fn
 
   let iter = iterParser manylines 
-  
+{-  let iter = do 
+        r <-  iterParser line -}
+        
+      
   h <- openFile fn ReadMode
   r <- run_ $ enumHandle 4096 h $$ iter 
 
