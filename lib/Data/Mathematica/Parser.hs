@@ -3,7 +3,7 @@ module Data.Mathematica.Parser where
 import Data.Mathematica 
 
 import Prelude hiding (takeWhile)
-import Control.Applicative hiding (many)
+import Control.Applicative 
 
 -- import qualified Data.Attoparsec as P
 -- import Data.Attoparsec.Combinator 

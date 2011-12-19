@@ -1,5 +1,5 @@
 Name:		mathematica-data
-Version:	0.0.2.999
+Version:	0.0.3.0
 Synopsis:	Parsing Mathematica .dat files
 Description: 	Parsing Mathematica .dat files 
 License: 	BSD3
@@ -16,15 +16,24 @@ Executable mathematica-data
   hs-source-dirs: exe
   ghc-options: 	-Wall -O2 -threaded -funbox-strict-fields -fno-warn-unused-do-bind
   ghc-prof-options: -caf-all -auto-all
-  Build-Depends:   base>4, mtl>2, directory, filepath,
-                   cmdargs, mathematica-data
+  Build-Depends:   base == 4.*, 
+                   mtl == 2.*, 
+                   directory, 
+                   filepath,
+                   cmdargs == 0.9.*, 
+                   mathematica-data
 
 Library
   hs-source-dirs: lib
   ghc-options: 	-Wall -O2 -threaded -funbox-strict-fields -fno-warn-unused-do-bind
   ghc-prof-options: -caf-all -auto-all
-  Build-Depends:   base>4, mtl>2, directory, filepath,
-                   cmdargs, attoparsec, bytestring
+  Build-Depends:   base == 4.*, 
+                   mtl == 2.*, 
+                   directory, 
+                   filepath,
+                   cmdargs == 0.9.*, 
+                   attoparsec == 0.10.*, 
+                   bytestring == 0.9.*
   Exposed-Modules: 
                    Application.Mathematica.Parse.ProgType
                    Application.Mathematica.Parse.Job
