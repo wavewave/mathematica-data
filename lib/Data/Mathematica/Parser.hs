@@ -85,6 +85,10 @@ line :: Parser [MExpression]
 line = many ( skipBlank *> item  <* skipBlank  ) 
   
 
-manylines :: Parser [[MExpression]]
-manylines = many (line <* endOfLine) 
+mathdatafile :: Parser [[MExpression]]
+mathdatafile = do x <- line
+                  xs <- many (endOfLine *> line) 
+                  skipSpace
+                  endOfInput
+                  return (x:xs)
 
